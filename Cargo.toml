@@ -1,0 +1,6 @@
+[package]
+name = "bst_map"
+version = "0.1.0"
+authors = ["KellanMebane <kellanmebane@gmail.com>"]
+
+[dependencies]
