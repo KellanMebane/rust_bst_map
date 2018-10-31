@@ -35,10 +35,6 @@ impl BST {
     }
 
     pub fn insert(&mut self, item: Pair) -> bool {
-        if self.size == 0 {
-            return false;
-        }
-
         self.internal_insert(0, item)
     }
 
@@ -143,10 +139,13 @@ impl BST {
 #[cfg(test)]
 mod test {
     use super::BST;
+    use super::Pair;
 
     #[test]
     fn is_empty() {
         let mut bst = BST::new();
         assert_eq!(true, bst.is_empty());
+        bst.insert(Pair::new('A', "hello".to_string()));
+        assert_eq!(false, bst.is_empty());
     }
 }

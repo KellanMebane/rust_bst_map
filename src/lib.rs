@@ -1,4 +1,5 @@
 pub mod bst;
+pub mod gbst;
 
 #[cfg(test)]
 mod tests {
