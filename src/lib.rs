@@ -3,7 +3,7 @@ pub mod gbst;
 
 #[cfg(test)]
 mod tests {
-    #[test]
+    //#[test]
     fn it_works() {
         assert_eq!(2 + 2, 4);
     }
