@@ -1,12 +1,24 @@
+/// Simple Tuple Wrapper for the key value pair.
+/// This lets each index just be a single option
 #[derive(Clone, Copy)]
 pub struct GPair<K, V>(K, V);
 
+/// Allocate as a tuple of values
 impl<K, V> GPair<K, V> {
     pub fn new(key: K, val: V) -> GPair<K, V> {
         GPair { 0: key, 1: val }
     }
 }
 
+/// Actual BST, accepts key value pairs.
+/// Keeps state of it's size and capacity.
+/// Keeps track of the iterator through
+/// previously visited item stack and
+/// current index when traversing.
+/// Current is an optional, is None when an index can't be found
+/// Tree is implemented in vector array and
+/// grows based on level.
+/// Capacity needed is Σ(2^L), where L is level starting from 0
 #[derive(Clone)]
 pub struct GBST<K, V> {
     size: usize,            // number of elements currently in the tree
@@ -17,8 +29,14 @@ pub struct GBST<K, V> {
     vec: Vec<Option<GPair<K, V>>>, // vector of optional indeces containing either none or some pair of character and string
 }
 
+/// Impl methods
 #[allow(dead_code)]
 impl<K, V> GBST<K, V> {
+
+    /// "Constructor" method. Returns an allocated BST
+    /// Requires Clone for key and value types.
+    /// Capacity initialized at 127 which is a depth of 6.
+    /// This is planned to be modular.
     pub fn new() -> GBST<K, V>
     where
         K: Clone,
@@ -34,18 +52,22 @@ impl<K, V> GBST<K, V> {
         }
     }
 
+    /// Returns true if empty
     pub fn is_empty(&self) -> bool {
         self.size == 0
     }
 
+    /// Returns current allocated Tree capacity
     pub fn capacity(&self) -> usize {
         self.capacity
     }
 
+    /// Returns number of elements in the Tree
     pub fn size(&self) -> usize {
         self.size
     }
 
+    /// Return an optional reference to the key at index
     pub fn get_key(&self, index: usize) -> Option<&K> {
         match self.vec[index].as_ref().as_ref() {
             Some(pair) => Some(&pair.0),
