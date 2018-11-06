@@ -109,21 +109,35 @@ impl<K, V> GBST<K, V> {
         return self.internal_insert(new_index, pair);
     }
 
-    pub fn inorder(&self) -> Vec<usize> {
-        let mut ordered: Vec<usize> = Vec::new();
-        self.internal_inorder(&mut ordered);
-        ordered
-    }
-
-    pub fn internal_inorder(&self, ordered: &mut Vec<usize>) {
-        // inorder and push indeces into vec
-    }
-
     pub fn iter(&mut self) -> Option<&K> {
         match self.next() {
             Some(x) => self.get_key(x),
             None => None,
         }
+    }
+
+    pub fn contains_key(&self, key: &K) -> Option<usize>
+    where
+        K: PartialEq + PartialOrd,
+    {
+        let mut index: usize = 0;
+
+        let mut x_key = self.get_key(index);
+
+        while x_key.is_some() {
+            let data = x_key.unwrap();
+            if *data > *key {
+                index = index * 2 + 1;
+            } else if *data < *key {
+                index = index * 2 + 2;
+            } else {
+                return Some(index);
+            }
+
+            x_key = self.get_key(index);
+        }
+
+        None
     }
 }
 
@@ -187,6 +201,23 @@ mod test {
     }
 
     #[test]
+    fn contains_key() {
+        let mut bst: GBST<&str, i32> = GBST::new();
+
+        bst.insert("Beetle", 0);
+        bst.insert("Cardinal", 0);
+        bst.insert("Giraffe", 0);
+        bst.insert("Kangaroo", 0);
+        bst.insert("Tiger", 0);
+        bst.insert("Aardvark", 0);
+        bst.insert("Dog", 0);
+        let x = bst.contains_key(&"Tiger");
+        assert_eq!(true, x.is_some());
+        let y = bst.get_key(x.unwrap()).unwrap();
+        assert_eq!("Tiger", *y);
+    }
+
+    #[test]
     fn iter() {
         let mut bst: GBST<&str, i32> = GBST::new();
 
@@ -198,8 +229,6 @@ mod test {
         bst.insert("Aardvark", 0);
         bst.insert("Dog", 0);
 
-        println!("\n\nsize is: {}", bst.size());
-        
         loop {
             match bst.iter() {
                 Some(x) => {
