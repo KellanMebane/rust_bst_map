@@ -1,19 +1,19 @@
 #[derive(Clone, Copy)]
 pub struct GPair<K, V>(K, V);
 
-impl <K, V> GPair<K, V> {
+impl<K, V> GPair<K, V> {
     pub fn new(key: K, val: V) -> GPair<K, V> {
-        GPair {
-            0: key,
-            1: val,
-        }
+        GPair { 0: key, 1: val }
     }
 }
 
 #[derive(Clone)]
 pub struct GBST<K, V> {
-    size: usize,                   // number of elements currently in the tree
-    capacity: usize, // size of vector needed, this growns with the tree as it get's deeper
+    size: usize,            // number of elements currently in the tree
+    capacity: usize,        // size of vector needed, this growns with the tree as it get's deeper
+    current: Option<usize>, //index of current iterator node
+    stack: Vec<usize>,
+    first: bool,
     vec: Vec<Option<GPair<K, V>>>, // vector of optional indeces containing either none or some pair of character and string
 }
 
@@ -27,6 +27,9 @@ impl<K, V> GBST<K, V> {
         GBST {
             size: 0,
             capacity: 127, // enough for depth of 6 initially
+            current: Some(0),
+            stack: Vec::new(),
+            first: true,
             vec: vec![None; 127],
         }
     }
@@ -43,7 +46,7 @@ impl<K, V> GBST<K, V> {
         self.size
     }
 
-    fn get_key(&self, index: usize) -> Option<&K> {
+    pub fn get_key(&self, index: usize) -> Option<&K> {
         match self.vec[index].as_ref().as_ref() {
             Some(pair) => Some(&pair.0),
             None => None,
@@ -105,6 +108,55 @@ impl<K, V> GBST<K, V> {
         }
         return self.internal_insert(new_index, pair);
     }
+
+    pub fn inorder(&self) -> Vec<usize> {
+        let mut ordered: Vec<usize> = Vec::new();
+        self.internal_inorder(&mut ordered);
+        ordered
+    }
+
+    pub fn internal_inorder(&self, ordered: &mut Vec<usize>) {
+        // inorder and push indeces into vec
+    }
+
+    pub fn iter(&mut self) -> Option<&K> {
+        match self.next() {
+            Some(x) => self.get_key(x),
+            None => None,
+        }
+    }
+}
+
+impl<K, V> Iterator for GBST<K, V> {
+    type Item = usize;
+    fn next(&mut self) -> Option<usize> {
+        if self.current.is_some() || !self.stack.is_empty() || self.first {
+            self.first = false;
+            while self.current != None {
+                self.stack.push(self.current.unwrap());
+                let x = self.current.unwrap();
+                let y = x * 2 + 1;
+                if self.get_key(y).is_some() {
+                    self.current = Some(y);
+                } else {
+                    self.current = None;
+                }
+            }
+            self.current = self.stack.pop();
+
+            let temp = self.current.unwrap();
+            let x = self.current.unwrap();
+            let y = x * 2 + 2;
+            if self.get_key(y).is_some() {
+                self.current = Some(y);
+            } else {
+                self.current = None;
+            }
+            return Some(temp);
+        }
+
+        None
+    }
 }
 
 #[cfg(test)]
@@ -132,5 +184,32 @@ mod test {
         assert_eq!(0, bst.size());
         bst.insert(12, 12);
         assert_eq!(1, bst.size());
+    }
+
+    #[test]
+    fn iter() {
+        let mut bst: GBST<&str, i32> = GBST::new();
+
+        bst.insert("Beetle", 0);
+        bst.insert("Cardinal", 0);
+        bst.insert("Giraffe", 0);
+        bst.insert("Kangaroo", 0);
+        bst.insert("Tiger", 0);
+        bst.insert("Aardvark", 0);
+        bst.insert("Dog", 0);
+
+        println!("\n\nsize is: {}", bst.size());
+        
+        loop {
+            match bst.iter() {
+                Some(x) => {
+                    print!("{} ", x);
+                }
+                None => {
+                    println!("");
+                    break;
+                }
+            }
+        }
     }
 }
